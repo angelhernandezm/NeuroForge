@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\dotnet\NeuroForge.Factory\NeuroForge.Factory.csproj" />
+    <PackageReference Include="Moq" Version="4.20.72" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.20.72" />
+    <ProjectReference Include="..\NeuroForge.Factory\NeuroForge.Factory.csproj" />
   </ItemGroup>
 
 </Project>

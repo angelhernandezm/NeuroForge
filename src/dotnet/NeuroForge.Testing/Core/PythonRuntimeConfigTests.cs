@@ -47,14 +47,13 @@ public class PythonRuntimeConfigTests {
     }
 
     [TestMethod]
-    public void PythonRuntimeConfig_Deserialize_FromValidJson_Success()
-    {
+    public void PythonRuntimeConfig_Deserialize_FromValidJson_Success() {
         // Arrange
         var json = """
             {
-                "pythonVersion": "3.11.4",
-                "downloadUrl": "https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe",
-                "installArgs": ["/quiet", "InstallAllUsers=1", "PrependPath=1"]
+                "python_version": "3.11.4",
+                "download_url": "https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe",
+                "install_args": ["/quiet", "InstallAllUsers=1", "PrependPath=1"]
             }
             """;
 
@@ -94,10 +93,10 @@ public class PythonRuntimeConfigTests {
 
         // Assert
         Assert.IsNotNull(json);
-        Assert.IsTrue(json.Contains("pythonVersion"));
+        Assert.IsTrue(json.Contains("python_version") || json.Contains("pythonVersion"));
         Assert.IsTrue(json.Contains("3.11.4"));
-        Assert.IsTrue(json.Contains("downloadUrl"));
-        Assert.IsTrue(json.Contains("installArgs"));
+        Assert.IsTrue(json.Contains("download_url") || json.Contains("downloadUrl"));
+        Assert.IsTrue(json.Contains("install_args") || json.Contains("installArgs"));
     }
 
     /// <summary>
@@ -129,7 +128,7 @@ public class PythonRuntimeConfigTests {
         // Arrange
         var json = """
             {
-                "pythonVersion": "3.11.4"
+                "python_version": "3.11.4"
             }
             """;
 

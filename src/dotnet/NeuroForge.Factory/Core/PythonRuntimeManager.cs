@@ -32,6 +32,7 @@
 using NeuroForge.Factory.Abstractions;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace NeuroForge.Factory.Core;
@@ -194,7 +195,11 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
         var output = await outputTask;
         var error = await errorTask;
 
-        if (process.ExitCode != 0) {
+        if (process.ExitCode == 1638) { // Another version already exists
+            Console.WriteLine("Another version of Python is already installed. Installation of this version " +
+                              "cannot continue. To configure or remove the existing version of this product, " +
+                              "use Add/Remove Programs on the Control Panel.");
+        } else if (process.ExitCode != 0) {
             throw new InvalidOperationException($"Python installation failed with exit code {process.ExitCode}. " +
                                                 $"Output: {output} Error: {error}");
         }
@@ -218,7 +223,7 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
 
         foreach (var package in config.Packages) {
             progress?.Report($"Installing package: {package}");
-            await InstallPackageAsync(pythonPath, package, cancellationToken);
+            await InstallPackageAsync(pythonPath, package, progress, cancellationToken);
             progress?.Report($"Successfully installed: {package}");
         }
     }
@@ -228,11 +233,12 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
     /// </summary>
     /// <param name="pythonPath">The python path.</param>
     /// <param name="package">The package.</param>
+    /// <param name="progress">The progress reporter.</param>
     /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
     /// <exception cref="System.InvalidOperationException">Package installation failed for '{package}' with exit code {process.ExitCode}. " +
     ///                 $"Output: {output} Error: {error}</exception>
-    private async Task InstallPackageAsync(string pythonPath, string package, CancellationToken cancellationToken) {
+    private async Task InstallPackageAsync(string pythonPath, string package, IProgress<string>? progress, CancellationToken cancellationToken) {
         var startInfo = new ProcessStartInfo {
             FileName = pythonPath,
             Arguments = $"-m pip install {package}",
@@ -243,12 +249,34 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
         };
 
         using var process = new Process { StartInfo = startInfo };
+        var outputBuilder = new StringBuilder();
+        var errorBuilder = new StringBuilder();
+
+        // Set up event handlers for real-time output
+        process.OutputDataReceived += (sender, e) => {
+            if (!string.IsNullOrEmpty(e.Data)) {
+                outputBuilder.AppendLine(e.Data);
+                progress?.Report($"  {e.Data}");
+            }
+        };
+
+        process.ErrorDataReceived += (sender, e) => {
+            if (!string.IsNullOrEmpty(e.Data)) {
+                errorBuilder.AppendLine(e.Data);
+                progress?.Report($"  ERROR: {e.Data}");
+            }
+        };
+
         process.Start();
-        var outputTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
+
+        // Begin asynchronous reading of the output and error streams
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
         await process.WaitForExitAsync(cancellationToken);
-        var output = await outputTask;
-        var error = await errorTask;
+
+        var output = outputBuilder.ToString();
+        var error = errorBuilder.ToString();
 
         if (process.ExitCode != 0) {
             throw new InvalidOperationException($"Package installation failed for '{package}' with exit code {process.ExitCode}. " +

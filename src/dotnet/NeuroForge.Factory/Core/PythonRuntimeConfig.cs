@@ -29,6 +29,8 @@
 // SOFTWARE.
 // ============================================================================
 
+using System.Text.Json.Serialization;
+
 namespace NeuroForge.Factory.Core;
 
 /// <summary>
@@ -39,17 +41,21 @@ public class PythonRuntimeConfig {
     /// Gets or sets the python version.
     /// </summary>
     /// <value>The python version.</value>
+    [JsonPropertyName("python_version")]
     public string PythonVersion { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the download URL.
     /// </summary>
     /// <value>The download URL.</value>
+    [JsonPropertyName("download_url")]
     public string DownloadUrl { get; set; } = string.Empty;
+
 
     /// <summary>
     /// Gets or sets the install arguments.
     /// </summary>
     /// <value>The install arguments.</value>
+    [JsonPropertyName("install_args")]
     public string[] InstallArgs { get; set; } = [];
 }

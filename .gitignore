@@ -10,3 +10,7 @@
 /src/.vs/NeuroForge/CopilotIndices/18.8.1055.19665
 /src/.vs/ProjectEvaluation
 /src/dotnet/NeuroForge.Factory/bin/Debug/net10.0
+/src/dotnet/NeuroForge.Runner/bin/Debug/net10.0
+/src/dotnet/NeuroForge.Runner/obj
+/src/dotnet/NeuroForge.Testing/bin/Debug/net10.0
+/src/dotnet/NeuroForge.Testing/obj
