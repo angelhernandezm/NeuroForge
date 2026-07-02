@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/dotnet/" />
+  <Folder Name="/dotnet/Factory/">
+    <Project Path="dotnet/NeuroForge.Factory/NeuroForge.Factory.csproj" Id="66b334bb-c892-4ff9-bf12-3b9a4061a785" />
+  </Folder>
+  <Folder Name="/dotnet/Testing/">
+    <Project Path="NeuroForge.Testing/NeuroForge.Testing.csproj" Id="ffbf3a72-a11b-4581-a98a-e64b44445dec" />
+  </Folder>
+</Solution>

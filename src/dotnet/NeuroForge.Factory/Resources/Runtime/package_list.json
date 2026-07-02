@@ -1,0 +1,8 @@
+{
+  "packages": [
+    "tensorflow==2.15.0",
+    "tf2onnx",
+    "numpy",
+    "matplotlib"
+  ]
+}

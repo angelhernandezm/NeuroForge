@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Factory\autoencoder_builder.py" />
+    <None Remove="Resources\Factory\base_builder.py" />
+    <None Remove="Resources\Factory\Builders\__init__.py" />
+    <None Remove="Resources\Factory\cnn_builder.py" />
+    <None Remove="Resources\Factory\dataset_loader.py" />
+    <None Remove="Resources\Factory\factory_config.json" />
+    <None Remove="Resources\Factory\gan_builder.py" />
+    <None Remove="Resources\Factory\mlp_builder.py" />
+    <None Remove="Resources\Factory\model_factory.py" />
+    <None Remove="Resources\Factory\rnn_builder.py" />
+    <None Remove="Resources\Factory\transformer_builder.py" />
+    <None Remove="Resources\Factory\__init__.py" />
+    <None Remove="Resources\package_list.json" />
+    <None Remove="Resources\python_runtime.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Factory\Builders\autoencoder_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\Builders\base_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\Builders\cnn_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\Builders\__init__.py" />
+    <EmbeddedResource Include="Resources\Factory\dataset_loader.py" />
+    <EmbeddedResource Include="Resources\Factory\factory_config.json" />
+    <EmbeddedResource Include="Resources\Factory\Builders\gan_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\Builders\mlp_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\model_factory.py" />
+    <EmbeddedResource Include="Resources\Factory\Builders\rnn_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\Builders\transformer_builder.py" />
+    <EmbeddedResource Include="Resources\Factory\__init__.py" />
+    <EmbeddedResource Include="Resources\Runtime\package_list.json" />
+    <EmbeddedResource Include="Resources\Runtime\python_runtime.json" />
+    <EmbeddedResource Include="Resources\Runtime\__init__.py" />
+  </ItemGroup>
+
+</Project>

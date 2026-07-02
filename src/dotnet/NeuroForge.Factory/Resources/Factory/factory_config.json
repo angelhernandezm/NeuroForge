@@ -1,0 +1,173 @@
+{
+  "models": {
+    "cnn": {
+      "type": "cnn",
+      "input_shape": [ 64, 64, 3 ],
+      "num_classes": 200,
+
+      "dataset": {
+        "source": "tiny-imagenet",
+        "path": "tiny-imagenet-200",
+        "type": "image",
+        "normalize": true,
+        "resize": [ 64, 64 ],
+        "validation_split": 0.2
+      },
+
+      "params": {
+        "filters": [ 32, 64, 128 ],
+        "kernel_size": 3,
+        "dense_units": 256,
+        "dropout": 0.3,
+        "optimizer": "adam",
+        "loss": "sparse_categorical_crossentropy"
+      },
+
+      "training": {
+        "epochs": 10,
+        "batch_size": 64
+      }
+    },
+
+    "mlp": {
+      "type": "mlp",
+      "input_shape": [ 1024 ],
+      "num_classes": 10,
+
+      "dataset": {
+        "source": "file",
+        "path": "data/tabular.csv",
+        "type": "tabular",
+        "normalize": true,
+        "shuffle": true,
+        "validation_split": 0.2
+      },
+
+      "params": {
+        "units": [ 128, 64, 32 ],
+        "dropout": 0.2,
+        "optimizer": "adam",
+        "loss": "sparse_categorical_crossentropy"
+      },
+
+      "training": {
+        "epochs": 20,
+        "batch_size": 32
+      }
+    },
+
+    "autoencoder": {
+      "type": "autoencoder",
+      "input_shape": [ 1024 ],
+      "num_classes": null,
+
+      "dataset": {
+        "source": "file",
+        "path": "data/features.npy",
+        "type": "tabular",
+        "normalize": true,
+        "validation_split": 0.1
+      },
+
+      "params": {
+        "encoder_units": [ 128, 64 ],
+        "decoder_units": [ 64, 128 ],
+        "bottleneck": 32,
+        "optimizer": "adam",
+        "loss": "mse"
+      },
+
+      "training": {
+        "epochs": 50,
+        "batch_size": 32
+      }
+    },
+
+    "gan": {
+      "type": "gan",
+      "input_shape": [ 32, 32, 3 ],
+      "num_classes": null,
+
+      "dataset": {
+        "source": "cifar10",
+        "type": "image",
+        "normalize": true,
+        "class_selection": 6
+      },
+
+      "params": {
+        "latent_dim": 100,
+        "g_optimizer": {
+          "lr": 0.0002,
+          "beta_1": 0.5
+        },
+        "d_optimizer": {
+          "lr": 0.0002,
+          "beta_1": 0.5
+        }
+      },
+
+      "training": {
+        "epochs": 5000,
+        "batch_size": 32
+      }
+    },
+
+    "rnn": {
+      "type": "rnn",
+      "input_shape": [ 50, 32 ],
+      "num_classes": 10,
+
+      "dataset": {
+        "source": "file",
+        "path": "data/sequences.json",
+        "type": "sequence",
+        "tokenize": true,
+        "pad_sequences": true,
+        "validation_split": 0.2
+      },
+
+      "params": {
+        "units": 128,
+        "dropout": 0.2,
+        "use_lstm": true,
+        "optimizer": "adam",
+        "loss": "sparse_categorical_crossentropy"
+      },
+
+      "training": {
+        "epochs": 30,
+        "batch_size": 64
+      }
+    },
+
+    "transformer": {
+      "type": "transformer",
+      "input_shape": [ 128, 64 ],
+      "num_classes": 10,
+
+      "dataset": {
+        "source": "file",
+        "path": "data/text_corpus.txt",
+        "type": "text",
+        "tokenize": true,
+        "max_length": 128,
+        "validation_split": 0.2
+      },
+
+      "params": {
+        "num_heads": 8,
+        "num_layers": 2,
+        "ff_dim": 256,
+        "dropout": 0.1,
+        "optimizer": "adamw",
+        "loss": "sparse_categorical_crossentropy"
+      },
+
+      "training": {
+        "epochs": 15,
+        "batch_size": 32
+      }
+    }
+  }
+}

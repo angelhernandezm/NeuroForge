@@ -1,0 +1,5 @@
+{
+  "python_version": "3.11.4",
+  "download_url": "https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe",
+  "install_args": [ "/quiet", "InstallAllUsers=1", "PrependPath=1" ]
+}
