@@ -10,7 +10,6 @@
     <None Remove="Resources\Factory\autoencoder_builder.py" />
     <None Remove="Resources\Factory\base_builder.py" />
     <None Remove="Resources\Factory\Builders\__init__.py" />
-    <None Remove="Resources\Factory\cnn_builder.py" />
     <None Remove="Resources\Factory\dataset_loader.py" />
     <None Remove="Resources\Factory\factory_config.json" />
     <None Remove="Resources\Factory\gan_builder.py" />
