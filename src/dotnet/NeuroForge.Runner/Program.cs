@@ -92,7 +92,7 @@ try {
     var tempConfigPath = Path.Combine(Path.GetTempPath(), "neuroforge_cnn_cifar10.json");
     await File.WriteAllTextAsync(tempConfigPath, configJson);
 
-    Console.WriteLine("🔧 Configuration prepared. Starting training...\n");
+    Console.WriteLine("✓ Configuration prepared. Starting training...\n");
     var modelPath = await builderManager.BuildModelAsync(tempConfigPath, progress);
 
     Console.WriteLine($"\n✓ Model trained and exported to: {modelPath}");
