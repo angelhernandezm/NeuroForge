@@ -6,7 +6,7 @@
 
 **The Enterprise ANN Creation Engine for .NET Developers**
 
-Build, Train, and Deploy Neural Networks Entirely from C# — Zero Python Required
+Build, Train, and Deploy Neural Networks Entirely from C#.
 
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-FF6F00?style=flat-square&logo=tensorflow)](https://www.tensorflow.org/)
