@@ -33,13 +33,25 @@ import importlib
 
 class ModelFactory:
     registry = {
-        "cnn": "Factory.Builders.cnn_builder.CnnBuilder",
-        "mlp": "Factory.Builders.mlp_builder.MlpBuilder",
-        "autoencoder": "Factory.Builders.autoencoder_builder.AutoencoderBuilder",
-        "gan": "Factory.Builders.gan_builder.GanBuilder",
-        "rnn": "Factory.Builders.rnn_builder.RnnBuilder",
-        "transformer": "Factory.Builders.transformer_builder.TransformerBuilder"
+        "cnn": "Builders.cnn_builder.CnnBuilder",
+        "mlp": "Builders.mlp_builder.MlpBuilder",
+        "autoencoder": "Builders.autoencoder_builder.AutoencoderBuilder",
+        "gan": "Builders.gan_builder.GanBuilder",
+        "rnn": "Builders.rnn_builder.RnnBuilder",
+        "transformer": "Builders.transformer_builder.TransformerBuilder"
     }
+
+    @classmethod
+    def get_builder_class(cls, model_type: str):
+        """Get the builder class for a specific model type"""
+        if model_type not in cls.registry:
+            raise ValueError(f"Unknown ANN type: {model_type}")
+
+        module_path, class_name = cls.registry[model_type].rsplit(".", 1)
+        module = importlib.import_module(module_path)
+        builder_class = getattr(module, class_name)
+
+        return builder_class
 
     @classmethod
     def create(cls, config: dict):
@@ -47,8 +59,5 @@ class ModelFactory:
         if model_type not in cls.registry:
             raise ValueError(f"Unknown ANN type: {model_type}")
 
-        module_name, class_name = cls.registry[model_type].split(".")
-        module = importlib.import_module(module_name)
-        builder_class = getattr(module, class_name)
-
+        builder_class = cls.get_builder_class(model_type)
         return builder_class(config).build()

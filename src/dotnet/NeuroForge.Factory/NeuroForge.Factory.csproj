@@ -27,11 +27,13 @@
     <EmbeddedResource Include="Resources\Factory\Builders\base_builder.py" />
     <EmbeddedResource Include="Resources\Factory\Builders\cnn_builder.py" />
     <EmbeddedResource Include="Resources\Factory\Builders\__init__.py" />
+    <EmbeddedResource Include="Resources\Factory\convert_to_onnx.py" />
     <EmbeddedResource Include="Resources\Factory\dataset_loader.py" />
     <EmbeddedResource Include="Resources\Factory\factory_config.json" />
     <EmbeddedResource Include="Resources\Factory\Builders\gan_builder.py" />
     <EmbeddedResource Include="Resources\Factory\Builders\mlp_builder.py" />
     <EmbeddedResource Include="Resources\Factory\model_factory.py" />
+    <EmbeddedResource Include="Resources\Factory\run_builder.py" />
     <EmbeddedResource Include="Resources\Factory\Builders\rnn_builder.py" />
     <EmbeddedResource Include="Resources\Factory\Builders\transformer_builder.py" />
     <EmbeddedResource Include="Resources\Factory\__init__.py" />

@@ -1,0 +1,14 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*.cs]
+# CS8618: Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+dotnet_diagnostic.CS8618.severity = none
+
+# MSTEST0032: Review or remove the assertion as its condition is known to be always true
+dotnet_diagnostic.MSTEST0032.severity = none
+
+# MSTEST0037: Use specific assert methods instead of generic ones
+dotnet_diagnostic.MSTEST0037.severity = none
