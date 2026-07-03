@@ -13,7 +13,7 @@ Build, Train, and Deploy Neural Networks Entirely from C# — Zero Python Requir
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![ONNX](https://img.shields.io/badge/ONNX-Export-5C3EE8?style=flat-square)](https://onnx.ai/)
 
-[Quick Start](#-quick-start) • [ANN Architectures](#-six-production-ready-ann-architectures) • [Documentation](#-documentation) • [Examples](#-examples)
+[Quick Start](#-quick-start-build-your-first-ann-in-30-seconds) • [ANN Architectures](#%EF%B8%8F-six-production-ready-ann-architectures) • [Documentation](#-complete-documentation) • [Examples](#-real-world-examples)
 
 </div>
 
