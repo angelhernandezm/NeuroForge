@@ -6,7 +6,7 @@
 
 **The Enterprise ANN Creation Engine for .NET Developers**
 
-Build, Train, and Deploy Neural Networks Entirely from C# — Zero Python Required
+Build, Train, and Deploy Neural Networks Entirely from C#.
 
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-FF6F00?style=flat-square&logo=tensorflow)](https://www.tensorflow.org/)
@@ -721,31 +721,9 @@ await manager.BuildModelAsync("customer_encoder", config);
 
 ---
 
-## 🗺️ Roadmap
-
-### Version 1.1 (Q2 2025)
-- [ ] Linux/macOS support
-- [ ] GPU acceleration (CUDA)
-- [ ] Pre-trained model zoo
-- [ ] Hyperparameter auto-tuning
-
-### Version 1.2 (Q3 2025)
-- [ ] Model versioning and registry
-- [ ] A/B testing framework
-- [ ] Distributed training
-- [ ] TensorBoard integration
-
-### Version 2.0 (Q4 2025)
-- [ ] PyTorch backend option
-- [ ] AutoML capabilities
-- [ ] Model explainability tools
-- [ ] Production monitoring dashboard
-
----
-
 ## 🤝 Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions!.
 
 **Areas we'd love help with:**
 - 🐧 Linux/macOS support
