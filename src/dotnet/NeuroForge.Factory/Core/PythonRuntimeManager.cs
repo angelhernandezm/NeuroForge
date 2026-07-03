@@ -78,6 +78,8 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
         await InstallPythonAsync(installerPath, runtimeConfig, cancellationToken);
         progress?.Report("Installing Python packages...");
         await InstallPackagesAsync(packageConfig, progress, cancellationToken);
+        progress?.Report("Updating system PATH...");
+        UpdateSystemPath(progress);
         progress?.Report("Python environment setup completed successfully!");
     }
 
@@ -328,6 +330,70 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
             }
         }
         throw new InvalidOperationException("Could not find Python executable. Please ensure Python is installed and in the system PATH.");
+    }
+
+    /// <summary>
+    /// Updates the system PATH to include Python and Scripts directories
+    /// </summary>
+    /// <param name="progress">The progress reporter.</param>
+    private void UpdateSystemPath(IProgress<string>? progress) {
+        try {
+            var pythonPath = FindPythonExecutable();
+            var pythonDir = Path.GetDirectoryName(pythonPath);
+
+            if (string.IsNullOrEmpty(pythonDir)) {
+                progress?.Report("Could not determine Python directory");
+                return;
+            }
+
+            var scriptsDir = Path.Combine(pythonDir, "Scripts");
+
+            // Also check for user-local Python Scripts folder
+            var userScriptsDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Python", "Python311", "Scripts");
+
+            // Get current user PATH
+            var scope = EnvironmentVariableTarget.User;
+            var currentPath = Environment.GetEnvironmentVariable("PATH", scope) ?? string.Empty;
+            var pathParts = currentPath.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            var dirsToAdd = new List<string>();
+
+            // Add Python directory if not already in PATH
+            if (!pathParts.Any(p => p.Equals(pythonDir, StringComparison.OrdinalIgnoreCase))) {
+                dirsToAdd.Add(pythonDir);
+            }
+
+            // Add Scripts directory if it exists and not already in PATH
+            if (Directory.Exists(scriptsDir) && 
+                !pathParts.Any(p => p.Equals(scriptsDir, StringComparison.OrdinalIgnoreCase))) {
+                dirsToAdd.Add(scriptsDir);
+            }
+
+            // Add user Scripts directory if it exists and not already in PATH
+            if (Directory.Exists(userScriptsDir) && 
+                !pathParts.Any(p => p.Equals(userScriptsDir, StringComparison.OrdinalIgnoreCase))) {
+                dirsToAdd.Add(userScriptsDir);
+            }
+
+            if (dirsToAdd.Count > 0) {
+                pathParts.AddRange(dirsToAdd);
+                var newPath = string.Join(";", pathParts);
+                Environment.SetEnvironmentVariable("PATH", newPath, scope);
+
+                // Also update current process PATH so it's immediately available
+                Environment.SetEnvironmentVariable("PATH", newPath);
+
+                foreach (var dir in dirsToAdd) {
+                    progress?.Report($"Added to PATH: {dir}");
+                }
+            } else {
+                progress?.Report("Python directories already in PATH");
+            }
+        } catch (Exception ex) {
+            progress?.Report($"Warning: Could not update PATH: {ex.Message}");
+        }
     }
 
     /// <summary>
