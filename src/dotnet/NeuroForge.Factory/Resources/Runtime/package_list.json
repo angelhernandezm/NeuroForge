@@ -4,6 +4,8 @@
     "tf2onnx",
     "numpy",
     "matplotlib",
-    "pandas"
+    "pandas",
+    "scikit-learn",
+    "pillow"
   ]
 }
