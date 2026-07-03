@@ -55,7 +55,7 @@ try {
     var progress = PythonRuntimeHelper.CreateConsoleProgress();
 
     // Using built-in CIFAR-10 dataset (simplest option)
-    Console.WriteLine("\n📦 Using built-in CIFAR-10 dataset");
+    Console.WriteLine("\n✓ Using built-in CIFAR-10 dataset");
     Console.WriteLine("   - 50,000 training images (32x32 RGB)");
     Console.WriteLine("   - 10 classes (airplane, car, bird, cat, deer, dog, frog, horse, ship, truck)\n");
 
@@ -95,7 +95,7 @@ try {
     Console.WriteLine("🔧 Configuration prepared. Starting training...\n");
     var modelPath = await builderManager.BuildModelAsync(tempConfigPath, progress);
 
-    Console.WriteLine($"\n✅ Model trained and exported to: {modelPath}");
+    Console.WriteLine($"\n✓ Model trained and exported to: {modelPath}");
 
     // Clean up temp config
     if (File.Exists(tempConfigPath))
@@ -116,14 +116,14 @@ try {
     #endregion
 
     Console.WriteLine("\n===========================================");
-    Console.WriteLine("✅ NeuroForge Demo Completed Successfully!");
+    Console.WriteLine("✓ NeuroForge Demo Completed Successfully!");
     Console.WriteLine("===========================================");
-    Console.WriteLine("\n📊 What just happened:");
+    Console.WriteLine("\n✓ What just happened:");
     Console.WriteLine("   1. Python + TensorFlow environment initialized");
     Console.WriteLine("   2. CIFAR-10 dataset loaded (50,000 images)");
     Console.WriteLine("   3. CNN model trained for 5 epochs");
     Console.WriteLine("   4. Model exported to ONNX format");
-    Console.WriteLine("\n💡 Next steps:");
+    Console.WriteLine("\n✓ Next steps:");
     Console.WriteLine("   - Deploy the .onnx model with ML.NET");
     Console.WriteLine("   - Try other datasets (see DATASETS.md)");
     Console.WriteLine("   - Experiment with other ANN types (MLP, RNN, GAN, etc.)");
