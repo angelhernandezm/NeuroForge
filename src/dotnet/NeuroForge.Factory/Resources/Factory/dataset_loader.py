@@ -50,13 +50,15 @@ class DatasetLoader:
             # Optional class selection (GAN)
             cls = dataset_cfg.get("class_selection")
             if cls is not None:
-                x_train = x_train[y_train.flatten() == cls]
+                mask = y_train.flatten() == cls
+                x_train = x_train[mask]
+                y_train = y_train[mask]
 
             # Normalize
             if dataset_cfg.get("normalize", True):
                 x_train = (x_train.astype("float32") / 127.5) - 1.0
 
-            return x_train, None
+            return x_train, y_train
 
         if dtype == "image":
             return DatasetLoader._load_image_folder(dataset_cfg)

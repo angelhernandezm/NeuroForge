@@ -30,8 +30,8 @@
 # =============================================================================
 
 import tensorflow as tf
-from Factory.Builders.base_builder import BaseBuilder
-from Factory.dataset_loader import DatasetLoader
+from Builders.base_builder import BaseBuilder
+from dataset_loader import DatasetLoader
 
 class AutoencoderBuilder(BaseBuilder):
 

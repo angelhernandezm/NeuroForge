@@ -47,31 +47,87 @@ try {
     // Step 2: Create ANN Builder Manager
     Console.WriteLine("Step 2: Initializing ANN Builder Manager...");
     using var builderManager = new AnnBuilderManager();
-
     Console.WriteLine($"✓ Builder Manager initialized");
     Console.WriteLine($"Available models: {string.Join(", ", builderManager.AvailableModels)}\n");
 
-    // Step 3: Build a model (example with MLP)
-    Console.WriteLine("Step 3: Building MLP model...");
-
+    // Step 3: Build a model (example with CNN using CIFAR-10)
+    Console.WriteLine("Step 3: Building CNN model with CIFAR-10 dataset...");
     var progress = PythonRuntimeHelper.CreateConsoleProgress();
 
-    // Option 1: Build with model name and dataset path
-    // Uncomment to test:
+    // Using built-in CIFAR-10 dataset (simplest option - no download needed)
+    Console.WriteLine("\n📦 Using built-in CIFAR-10 dataset");
+    Console.WriteLine("   - 50,000 training images (32x32 RGB)");
+    Console.WriteLine("   - 10 classes (airplane, car, bird, cat, deer, dog, frog, horse, ship, truck)\n");
+
+    #region "Custom config JSON example - using CIFAR10"
+
+    // Create a custom config JSON and save it temporarily
+    var configJson = @"{
+        ""type"": ""cnn"",
+        ""input_shape"": [32, 32, 3],
+        ""num_classes"": 10,
+        ""dataset"": {
+            ""source"": ""cifar10"",
+            ""type"": ""image"",
+            ""normalize"": true,
+            ""validation_split"": 0.2
+        },
+        ""params"": {
+            ""filters"": [32, 64],
+            ""kernel_size"": 3,
+            ""dense_units"": 128,
+            ""dropout"": 0.3,
+            ""optimizer"": ""adam"",
+            ""loss"": ""sparse_categorical_crossentropy""
+        },
+        ""training"": {
+            ""epochs"": 5,
+            ""batch_size"": 64
+        }
+    }";
+
+    #endregion
+
+    // Save config to temporary file
+    var tempConfigPath = Path.Combine(Path.GetTempPath(), "neuroforge_cnn_cifar10.json");
+    await File.WriteAllTextAsync(tempConfigPath, configJson);
+
+    Console.WriteLine("🔧 Configuration prepared. Starting training...\n");
+    var modelPath = await builderManager.BuildModelAsync(tempConfigPath, progress);
+
+    Console.WriteLine($"\n✅ Model trained and exported to: {modelPath}");
+
+    // Clean up temp config
+    if (File.Exists(tempConfigPath))
+        File.Delete(tempConfigPath);
+
+    #region "Other options to build models"
+
+    // Option 2: Build with custom CSV dataset (for tabular/MLP)
+    // Uncomment to test with your own data:
     // var datasetPath = @"C:\Data\my_dataset.csv";
     // var modelPath = await builderManager.BuildModelAsync("mlp", datasetPath, progress);
 
-    // Option 2: Build with custom config file
+    // Option 3: Build with custom config file
     // Uncomment to test:
     // var configPath = @"C:\Config\my_custom_config.json";
     // var modelPath = await builderManager.BuildModelAsync(configPath, progress);
 
+    #endregion
+
     Console.WriteLine("\n===========================================");
-    Console.WriteLine("Demo completed successfully!");
+    Console.WriteLine("✅ NeuroForge Demo Completed Successfully!");
     Console.WriteLine("===========================================");
-    Console.WriteLine("\nNote: To actually build a model, uncomment one of the");
-    Console.WriteLine("BuildModelAsync examples above and provide a valid dataset path.");
-    Console.WriteLine("\nPress any key to exit...");
+    Console.WriteLine("\n📊 What just happened:");
+    Console.WriteLine("   1. Python + TensorFlow environment initialized");
+    Console.WriteLine("   2. CIFAR-10 dataset loaded (50,000 images)");
+    Console.WriteLine("   3. CNN model trained for 5 epochs");
+    Console.WriteLine("   4. Model exported to ONNX format");
+    Console.WriteLine("\n💡 Next steps:");
+    Console.WriteLine("   - Deploy the .onnx model with ML.NET");
+    Console.WriteLine("   - Try other datasets (see DATASETS.md)");
+    Console.WriteLine("   - Experiment with other ANN types (MLP, RNN, GAN, etc.)");
+    Console.WriteLine("\n\nPress any key to exit...");
 
 } catch (Exception ex) {
     Console.WriteLine($"\n[ERROR] {ex.Message}");

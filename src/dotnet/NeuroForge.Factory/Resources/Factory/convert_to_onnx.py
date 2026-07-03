@@ -33,22 +33,23 @@ import sys
 import os
 import json
 import argparse
+import subprocess
+import shutil
 
-def convert_model_to_onnx(model_path, output_path=None, opset=13):
+def convert_model_to_onnx(model_path, output_path=None, opset=17):
     """
-    Convert a Keras/TensorFlow model to ONNX format
+    Convert a Keras/TensorFlow model to ONNX format using tf2onnx CLI
 
     Args:
         model_path: Path to the H5 model file
         output_path: Path for the output ONNX file (optional)
-        opset: ONNX opset version (default: 13)
+        opset: ONNX opset version (default: 17)
 
     Returns:
         Path to the saved ONNX model
     """
     try:
         import tensorflow as tf
-        import tf2onnx
 
         print(f"[NeuroForge] Loading model from: {model_path}")
 
@@ -64,21 +65,33 @@ def convert_model_to_onnx(model_path, output_path=None, opset=13):
             base_path = os.path.splitext(model_path)[0]
             output_path = f"{base_path}.onnx"
 
-        print(f"[NeuroForge] Converting to ONNX (opset {opset})...")
+        print(f"[NeuroForge] Converting to ONNX (opset {opset}) using tf2onnx CLI...")
 
-        # Get input spec from model
-        input_signature = None
-        if model.inputs:
-            input_signature = [tf.TensorSpec(shape=input_layer.shape, dtype=input_layer.dtype, name=input_layer.name) 
-                             for input_layer in model.inputs]
+        # Create temporary directory for SavedModel format
+        saved_model_dir = os.path.join(os.path.dirname(model_path), "saved_model_temp")
 
-        # Convert to ONNX
-        model_proto, _ = tf2onnx.convert.from_keras(
-            model,
-            input_signature=input_signature,
-            opset=opset,
-            output_path=output_path
-        )
+        # Export to SavedModel format (required for tf2onnx CLI)
+        print(f"[NeuroForge] Exporting to SavedModel format...")
+        model.export(saved_model_dir)
+
+        print(f"[NeuroForge] Running tf2onnx conversion...")
+
+        # Use tf2onnx CLI for conversion (works better with TF 2.15+)
+        result = subprocess.run([
+            sys.executable, "-m", "tf2onnx.convert",
+            "--saved-model", saved_model_dir,
+            "--output", output_path,
+            "--opset", str(opset)
+        ], check=True, capture_output=True, text=True)
+
+        # Print tf2onnx output
+        if result.stdout:
+            print(result.stdout)
+
+        # Clean up temporary SavedModel directory
+        if os.path.exists(saved_model_dir):
+            shutil.rmtree(saved_model_dir)
+            print(f"[NeuroForge] Cleaned up temporary SavedModel directory")
 
         print(f"[NeuroForge] ONNX model saved to: {output_path}")
 
@@ -88,6 +101,7 @@ def convert_model_to_onnx(model_path, output_path=None, opset=13):
             'opset_version': opset,
             'source_model': os.path.basename(model_path),
             'framework': 'TensorFlow/Keras',
+            'conversion_method': 'tf2onnx CLI (subprocess)',
             'input_shapes': [list(input_layer.shape) for input_layer in model.inputs] if model.inputs else None,
             'output_shapes': [list(output_layer.shape) for output_layer in model.outputs] if model.outputs else None
         }
@@ -101,10 +115,26 @@ def convert_model_to_onnx(model_path, output_path=None, opset=13):
 
         return output_path
 
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] tf2onnx conversion failed with exit code {e.returncode}", file=sys.stderr)
+        if e.stdout:
+            print(f"[ERROR] stdout: {e.stdout}", file=sys.stderr)
+        if e.stderr:
+            print(f"[ERROR] stderr: {e.stderr}", file=sys.stderr)
+
+        # Clean up on failure
+        saved_model_dir = os.path.join(os.path.dirname(model_path), "saved_model_temp")
+        if os.path.exists(saved_model_dir):
+            shutil.rmtree(saved_model_dir)
+
+        print(f"[WARNING] ONNX conversion failed, but H5 model is still available at: {model_path}", file=sys.stderr)
+        return None
+
     except ImportError as e:
         print(f"[ERROR] Required package not found: {e}", file=sys.stderr)
         print(f"[ERROR] Please install: pip install tensorflow tf2onnx", file=sys.stderr)
-        sys.exit(1)
+        return None
+
     except Exception as e:
         print(f"[ERROR] Conversion failed: {e}", file=sys.stderr)
         import traceback

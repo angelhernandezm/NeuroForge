@@ -62,8 +62,15 @@ def main():
 
     # Import model factory
     try:
-        # Add current directory to path for imports
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        # Add parent directory to path so "Factory" package can be imported
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        parent_dir = os.path.dirname(script_dir)
+
+        # Add both directories to Python path
+        if parent_dir not in sys.path:
+            sys.path.insert(0, parent_dir)
+        if script_dir not in sys.path:
+            sys.path.insert(0, script_dir)
 
         from model_factory import ModelFactory
 
@@ -109,10 +116,24 @@ def main():
             print(f"[NeuroForge] Loading dataset...")
             from dataset_loader import DatasetLoader
 
-            dataset_loader = DatasetLoader(dataset_config)
-            X_train, y_train, X_val, y_val = dataset_loader.load()
+            X_train, y_train = DatasetLoader.load(dataset_config)
 
-            print(f"[NeuroForge] Dataset loaded: Training samples={len(X_train)}, Validation samples={len(X_val)}")
+            # Apply validation split if specified
+            validation_split = dataset_config.get('validation_split', 0.0)
+            if validation_split > 0 and X_train is not None:
+                split_idx = int(len(X_train) * (1 - validation_split))
+                X_val = X_train[split_idx:]
+                X_train = X_train[:split_idx]
+                if y_train is not None:
+                    y_val = y_train[split_idx:]
+                    y_train = y_train[:split_idx]
+                else:
+                    y_val = None
+            else:
+                X_val, y_val = None, None
+
+            val_count = len(X_val) if X_val is not None else 0
+            print(f"[NeuroForge] Dataset loaded: Training samples={len(X_train)}, Validation samples={val_count}")
 
             # Compile model (if not already compiled by builder)
             if not model.optimizer:
@@ -123,9 +144,10 @@ def main():
 
             # Train model
             print(f"[NeuroForge] Starting training...")
+            val_data = (X_val, y_val) if X_val is not None else None
             history = model.fit(
                 X_train, y_train,
-                validation_data=(X_val, y_val),
+                validation_data=val_data,
                 epochs=epochs,
                 batch_size=batch_size,
                 verbose=1
@@ -144,48 +166,83 @@ def main():
         model.save(model_path)
         print(f"[NeuroForge] Model saved to: {model_path}")
 
-        # Save model in ONNX format
+        # Save model in ONNX format using tf2onnx CLI (works better with TF 2.15+)
         try:
             print(f"[NeuroForge] Converting model to ONNX format...")
-            import tf2onnx
-            import tensorflow as tf
-
-            # Get input shape from config or model
-            input_shape = config.get('input_shape')
-            if input_shape:
-                # Add batch dimension
-                spec = (tf.TensorSpec((None, *input_shape), tf.float32, name="input"),)
-            else:
-                # Try to infer from model
-                spec = None
+            import subprocess
+            import shutil
 
             onnx_model_path = os.path.join(output_path, 'model.onnx')
 
-            # Convert to ONNX
-            model_proto, _ = tf2onnx.convert.from_keras(
-                model,
-                input_signature=spec,
-                opset=13,
-                output_path=onnx_model_path
-            )
+            # Create temporary directory for SavedModel format
+            saved_model_dir = os.path.join(output_path, "saved_model_temp")
+
+            # Export to SavedModel format (required for tf2onnx CLI)
+            print(f"[NeuroForge] Exporting to SavedModel format...")
+            model.export(saved_model_dir)
+
+            print(f"[NeuroForge] Running tf2onnx CLI conversion...")
+
+            # Use tf2onnx CLI for conversion (subprocess approach works with TF 2.15+)
+            result = subprocess.run([
+                sys.executable, "-m", "tf2onnx.convert",
+                "--saved-model", saved_model_dir,
+                "--output", onnx_model_path,
+                "--opset", "17"
+            ], check=True, capture_output=True, text=True)
+
+            # Print tf2onnx output for debugging
+            if result.stdout:
+                for line in result.stdout.split('\n'):
+                    if line.strip():
+                        print(f"[tf2onnx] {line}")
+
+            # Clean up temporary SavedModel directory
+            if os.path.exists(saved_model_dir):
+                shutil.rmtree(saved_model_dir)
+                print(f"[NeuroForge] Cleaned up temporary SavedModel directory")
 
             print(f"[NeuroForge] ONNX model saved to: {onnx_model_path}")
 
             # Save ONNX metadata
+            input_shape = config.get('input_shape')
             onnx_metadata = {
                 'format': 'ONNX',
-                'opset_version': 13,
+                'opset_version': 17,
                 'input_shape': input_shape,
-                'framework': 'TensorFlow/Keras'
+                'framework': 'TensorFlow/Keras',
+                'conversion_method': 'tf2onnx CLI (subprocess)'
             }
             onnx_meta_path = os.path.join(output_path, 'model_onnx_metadata.json')
             with open(onnx_meta_path, 'w') as f:
                 json.dump(onnx_metadata, f, indent=2)
             print(f"[NeuroForge] ONNX metadata saved to: {onnx_meta_path}")
 
+        except subprocess.CalledProcessError as e:
+            print(f"[WARNING] tf2onnx conversion failed with exit code {e.returncode}", file=sys.stderr)
+            if e.stdout:
+                print(f"[WARNING] stdout: {e.stdout}", file=sys.stderr)
+            if e.stderr:
+                print(f"[WARNING] stderr: {e.stderr}", file=sys.stderr)
+            print(f"[WARNING] Model is still available in H5 format", file=sys.stderr)
+
+            # Clean up on failure
+            saved_model_dir = os.path.join(output_path, "saved_model_temp")
+            if os.path.exists(saved_model_dir):
+                shutil.rmtree(saved_model_dir)
+
         except Exception as e:
             print(f"[WARNING] Failed to convert model to ONNX: {e}", file=sys.stderr)
             print(f"[WARNING] Model is still available in H5 format", file=sys.stderr)
+
+            # Clean up on failure
+            saved_model_dir = os.path.join(output_path, "saved_model_temp")
+            if os.path.exists(saved_model_dir):
+                try:
+                    shutil.rmtree(saved_model_dir)
+                except:
+                    pass
+
 
         # Save configuration used
         config_output_path = os.path.join(output_path, 'config.json')
