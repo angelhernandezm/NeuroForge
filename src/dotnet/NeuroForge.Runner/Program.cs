@@ -54,7 +54,7 @@ try {
     Console.WriteLine("Step 3: Building CNN model with CIFAR-10 dataset...");
     var progress = PythonRuntimeHelper.CreateConsoleProgress();
 
-    // Using built-in CIFAR-10 dataset (simplest option - no download needed)
+    // Using built-in CIFAR-10 dataset (simplest option)
     Console.WriteLine("\n📦 Using built-in CIFAR-10 dataset");
     Console.WriteLine("   - 50,000 training images (32x32 RGB)");
     Console.WriteLine("   - 10 classes (airplane, car, bird, cat, deer, dog, frog, horse, ship, truck)\n");

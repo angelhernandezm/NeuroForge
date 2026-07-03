@@ -80,6 +80,8 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
         await InstallPackagesAsync(packageConfig, progress, cancellationToken);
         progress?.Report("Updating system PATH...");
         UpdateSystemPath(progress);
+        progress?.Report("Configuring SSL certificates...");
+        ConfigureSslCertificates(progress);
         progress?.Report("Python environment setup completed successfully!");
     }
 
@@ -393,6 +395,52 @@ public class PythonRuntimeManager : IPythonRuntimeManager {
             }
         } catch (Exception ex) {
             progress?.Report($"Warning: Could not update PATH: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Configures SSL certificates for Python to use the certifi package
+    /// </summary>
+    /// <param name="progress">The progress reporter.</param>
+    private void ConfigureSslCertificates(IProgress<string>? progress) {
+        try {
+            var pythonPath = FindPythonExecutable();
+
+            // Get the certifi certificate bundle path
+            var startInfo = new ProcessStartInfo {
+                FileName = pythonPath,
+                Arguments = "-c \"import certifi; print(certifi.where())\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            using var process = Process.Start(startInfo);
+            if (process == null) {
+                progress?.Report("Warning: Could not locate certifi certificate bundle");
+                return;
+            }
+
+            process.WaitForExit(5000);
+            var certPath = process.StandardOutput.ReadToEnd().Trim();
+
+            if (process.ExitCode == 0 && !string.IsNullOrEmpty(certPath) && File.Exists(certPath)) {
+                // Set environment variables for SSL certificate verification
+                Environment.SetEnvironmentVariable("SSL_CERT_FILE", certPath);
+                Environment.SetEnvironmentVariable("REQUESTS_CA_BUNDLE", certPath);
+                Environment.SetEnvironmentVariable("CURL_CA_BUNDLE", certPath);
+
+                // Also set for user scope so it persists
+                Environment.SetEnvironmentVariable("SSL_CERT_FILE", certPath, EnvironmentVariableTarget.User);
+                Environment.SetEnvironmentVariable("REQUESTS_CA_BUNDLE", certPath, EnvironmentVariableTarget.User);
+
+                progress?.Report($"SSL certificates configured: {certPath}");
+            } else {
+                progress?.Report("Warning: Could not locate certifi certificate bundle");
+            }
+        } catch (Exception ex) {
+            progress?.Report($"Warning: Could not configure SSL certificates: {ex.Message}");
         }
     }
 
