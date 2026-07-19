@@ -79,8 +79,12 @@ public class AnnBuilderManager : IAnnBuilderManager {
         _workingDirectory = workingDirectory ?? Path.Combine(Path.GetTempPath(), "NeuroForge", "Factory");
         Directory.CreateDirectory(_workingDirectory);
 
-        // Extract resources and load configuration
-        ExtractPythonResources();
+        // Extract resources and load configuration.
+        // Force re-extraction so stale copies left over in the working directory
+        // (e.g. from a previous version) never shadow the current embedded builder
+        // scripts, which would otherwise keep running with old/hardcoded values
+        // instead of the dynamically supplied configuration.
+        ExtractPythonResources(force: true);
         LoadFactoryConfig();
     }
 
@@ -147,6 +151,35 @@ public class AnnBuilderManager : IAnnBuilderManager {
 
         // Execute Python builder
         return await ExecutePythonBuilderAsync(config.Type, configPath, progress, cancellationToken);
+    }
+
+    /// <summary>
+    /// Builds a model using a strongly-typed configuration object (e.g., loaded
+    /// from a JSON-driven <see cref="ModelConfig"/> and iterated over its models)
+    /// </summary>
+    /// <param name="modelName">Name to associate with this build (used for output/temp file naming)</param>
+    /// <param name="config">The strongly-typed ANN builder configuration</param>
+    /// <param name="progress">Optional progress callback</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>A Task&lt;System.String&gt; representing the asynchronous operation.</returns>
+    /// <exception cref="System.ArgumentNullException">config is null</exception>
+    /// <exception cref="System.InvalidOperationException">Invalid configuration: missing 'type' property</exception>
+    public async Task<string> BuildModelAsync(string modelName, AnnBuilderConfig config, IProgress<string>? progress = null, CancellationToken cancellationToken = default) {
+        progress?.Report($"Building model '{modelName}' from provided configuration...");
+
+        if (config == null)
+            throw new ArgumentNullException(nameof(config));
+
+        if (string.IsNullOrEmpty(config.Type))
+            throw new InvalidOperationException("Invalid configuration: missing 'type' property");
+
+        // Serialize the strongly-typed config to a temporary JSON file so it can
+        // be consumed the same way as any other config-driven build.
+        var customConfigPath = Path.Combine(_workingDirectory, $"{modelName}_config.json");
+        var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(customConfigPath, json, cancellationToken);
+
+        return await ExecutePythonBuilderAsync(config.Type, customConfigPath, progress, cancellationToken);
     }
 
     /// <summary>

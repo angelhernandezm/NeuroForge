@@ -38,27 +38,25 @@ class DatasetLoader:
     Loads datasets based on the unified JSON schema.
     """
 
+    # Built-in image datasets bundled with tf.keras.datasets. Grayscale
+    # datasets (mnist/fashion_mnist) are auto-expanded with a channel axis
+    # so they are compatible with Conv2D-based builders (CNN/GAN).
+    _BUILTIN_IMAGE_DATASETS = ("cifar10", "cifar100", "mnist", "fashion_mnist")
+
+    # Built-in sequence/text datasets bundled with tf.keras.datasets. These
+    # are returned as integer word-index sequences padded to a fixed length.
+    _BUILTIN_SEQUENCE_DATASETS = ("imdb", "reuters")
+
     @staticmethod
     def load(dataset_cfg: dict):
         source = dataset_cfg.get("source")
         dtype = dataset_cfg.get("type")
 
-        if source == "cifar10":
-            import tensorflow as tf
-            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        if source in DatasetLoader._BUILTIN_IMAGE_DATASETS:
+            return DatasetLoader._load_builtin_image_dataset(source, dataset_cfg)
 
-            # Optional class selection (GAN)
-            cls = dataset_cfg.get("class_selection")
-            if cls is not None:
-                mask = y_train.flatten() == cls
-                x_train = x_train[mask]
-                y_train = y_train[mask]
-
-            # Normalize
-            if dataset_cfg.get("normalize", True):
-                x_train = (x_train.astype("float32") / 127.5) - 1.0
-
-            return x_train, y_train
+        if source in DatasetLoader._BUILTIN_SEQUENCE_DATASETS:
+            return DatasetLoader._load_builtin_sequence_dataset(source, dataset_cfg)
 
         if dtype == "image":
             return DatasetLoader._load_image_folder(dataset_cfg)
@@ -75,6 +73,63 @@ class DatasetLoader:
             raise NotImplementedError("Text loader not implemented yet.")
 
         raise ValueError(f"Unsupported dataset type: {dtype}")
+
+    @staticmethod
+    def _load_builtin_image_dataset(source: str, dataset_cfg: dict):
+        """
+        Load a built-in tf.keras.datasets image dataset (cifar10, cifar100,
+        mnist, fashion_mnist).
+
+        Config parameters:
+            - class_selection: Optional label to filter on (used by GAN builders
+              that train on a single class, e.g. CIFAR-10 "airplane")
+            - normalize: Whether to normalize pixel values to [-1, 1] (default: True)
+        """
+        import tensorflow as tf
+
+        dataset_module = getattr(tf.keras.datasets, source)
+        (x_train, y_train), (_, _) = dataset_module.load_data()
+
+        # Grayscale datasets (mnist/fashion_mnist) don't have a channel axis;
+        # add one so they are compatible with Conv2D-based builders.
+        if x_train.ndim == 3:
+            x_train = np.expand_dims(x_train, axis=-1)
+
+        # Optional class selection (GAN)
+        cls = dataset_cfg.get("class_selection")
+        if cls is not None:
+            mask = y_train.flatten() == cls
+            x_train = x_train[mask]
+            y_train = y_train[mask]
+
+        # Normalize
+        if dataset_cfg.get("normalize", True):
+            x_train = (x_train.astype("float32") / 127.5) - 1.0
+
+        return x_train, y_train
+
+    @staticmethod
+    def _load_builtin_sequence_dataset(source: str, dataset_cfg: dict):
+        """
+        Load a built-in tf.keras.datasets sequence/text dataset (imdb, reuters).
+
+        Returns integer word-index sequences padded/truncated to a fixed length.
+
+        Config parameters:
+            - vocab_size: Maximum number of distinct words to keep (default: 10000)
+            - max_length: Sequence length to pad/truncate to (default: 200)
+        """
+        import tensorflow as tf
+
+        vocab_size = dataset_cfg.get("vocab_size", 10000)
+        max_length = dataset_cfg.get("max_length", 200)
+
+        dataset_module = getattr(tf.keras.datasets, source)
+        (x_train, y_train), (_, _) = dataset_module.load_data(num_words=vocab_size)
+
+        x_train = tf.keras.preprocessing.sequence.pad_sequences(x_train, maxlen=max_length)
+
+        return x_train, y_train
 
     @staticmethod
     def _load_image_folder(dataset_cfg: dict):

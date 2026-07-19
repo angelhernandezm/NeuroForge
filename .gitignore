@@ -14,3 +14,7 @@
 /src/dotnet/NeuroForge.Runner/obj
 /src/dotnet/NeuroForge.Testing/bin/Debug/net10.0
 /src/dotnet/NeuroForge.Testing/obj
+
+# Python bytecode cache
+__pycache__/
+*.pyc

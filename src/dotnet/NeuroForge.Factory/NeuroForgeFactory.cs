@@ -76,4 +76,14 @@ public class NeuroForgeFactory : INeuroForgeFactory {
             throw;
         }
     }
+
+    /// <summary>
+    /// Creates a new <see cref="IAnnBuilderManager" /> for building ANN models.
+    /// Requires <see cref="InitializeAsync" /> to have completed successfully first.
+    /// </summary>
+    /// <param name="workingDirectory">Working directory for extracted resources</param>
+    /// <returns>A new <see cref="IAnnBuilderManager" /> instance.</returns>
+    public IAnnBuilderManager CreateAnnBuilderManager(string? workingDirectory = null) {
+        return new AnnBuilderManager(workingDirectory);
+    }
 }

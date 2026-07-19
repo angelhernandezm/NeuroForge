@@ -29,6 +29,8 @@
 // SOFTWARE.
 // ============================================================================
 
+using NeuroForge.Factory.Core;
+
 namespace NeuroForge.Factory.Abstractions;
 
 /// <summary>
@@ -60,6 +62,17 @@ public interface IAnnBuilderManager : IDisposable {
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Path to the saved model</returns>
     Task<string> BuildModelAsync(string configPath, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Builds a model using a strongly-typed configuration object (e.g., loaded
+    /// from a JSON-driven <see cref="ModelConfig"/> and iterated over its models)
+    /// </summary>
+    /// <param name="modelName">Name to associate with this build (used for output/temp file naming)</param>
+    /// <param name="config">The strongly-typed ANN builder configuration</param>
+    /// <param name="progress">Optional progress callback</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Path to the saved model</returns>
+    Task<string> BuildModelAsync(string modelName, AnnBuilderConfig config, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Extracts Python resources to the working directory

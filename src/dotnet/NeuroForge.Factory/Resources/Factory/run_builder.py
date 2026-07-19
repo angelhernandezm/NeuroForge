@@ -135,30 +135,39 @@ def main():
             val_count = len(X_val) if X_val is not None else 0
             print(f"[NeuroForge] Dataset loaded: Training samples={len(X_train)}, Validation samples={val_count}")
 
-            # Compile model (if not already compiled by builder)
-            if not model.optimizer:
-                print(f"[NeuroForge] Compiling model...")
-                optimizer = config.get('params', {}).get('optimizer', 'adam')
-                loss = config.get('params', {}).get('loss', 'sparse_categorical_crossentropy')
-                model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+            # Some architectures (e.g. GAN) can't be trained with a plain
+            # model.fit() call because they need an alternating adversarial
+            # training loop. Builders that need this expose a custom_train()
+            # method, which takes priority over the generic path below.
+            if hasattr(builder, 'custom_train'):
+                print(f"[NeuroForge] Using custom training loop provided by {model_type} builder...")
+                history_data = builder.custom_train(X_train, epochs, batch_size)
+            else:
+                # Compile model (if not already compiled by builder)
+                if not model.optimizer:
+                    print(f"[NeuroForge] Compiling model...")
+                    optimizer = config.get('params', {}).get('optimizer', 'adam')
+                    loss = config.get('params', {}).get('loss', 'sparse_categorical_crossentropy')
+                    model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 
-            # Train model
-            print(f"[NeuroForge] Starting training...")
-            val_data = (X_val, y_val) if X_val is not None else None
-            history = model.fit(
-                X_train, y_train,
-                validation_data=val_data,
-                epochs=epochs,
-                batch_size=batch_size,
-                verbose=1
-            )
+                # Train model
+                print(f"[NeuroForge] Starting training...")
+                val_data = (X_val, y_val) if X_val is not None else None
+                history = model.fit(
+                    X_train, y_train,
+                    validation_data=val_data,
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    verbose=1
+                )
+                history_data = history.history
 
             print(f"[NeuroForge] Training completed")
 
             # Save training history
             history_path = os.path.join(output_path, 'training_history.json')
             with open(history_path, 'w') as f:
-                json.dump(history.history, f, indent=2)
+                json.dump(history_data, f, indent=2)
             print(f"[NeuroForge] Training history saved to: {history_path}")
 
         # Save model in H5 format
