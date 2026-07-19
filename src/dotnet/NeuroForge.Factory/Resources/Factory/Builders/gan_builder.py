@@ -32,14 +32,10 @@
 import numpy as np
 import tensorflow as tf
 from Builders.base_builder import BaseBuilder
-from dataset_loader import DatasetLoader
 
 class GanBuilder(BaseBuilder):
 
     def build(self):
-        # Load dataset
-        x_train, _ = DatasetLoader.load(self.dataset)
-
         input_shape = tuple(self.config["input_shape"])
 
         self.latent_dim = self.get("latent_dim", 100)
@@ -69,8 +65,7 @@ class GanBuilder(BaseBuilder):
             "model": self.generator,
             "generator": self.generator,
             "discriminator": self.discriminator,
-            "combined": self.combined,
-            "dataset": x_train
+            "combined": self.combined
         }
 
     def _build_generator(self, latent_dim, units, output_dim, input_shape):

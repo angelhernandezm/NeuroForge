@@ -31,13 +31,10 @@
 
 import tensorflow as tf
 from Builders.base_builder import BaseBuilder
-from dataset_loader import DatasetLoader
 
 class TransformerBuilder(BaseBuilder):
 
     def build(self):
-        x_train, _ = DatasetLoader.load(self.dataset)
-
         input_shape = tuple(self.config["input_shape"])
         num_classes = self.config["num_classes"]
 
@@ -62,6 +59,5 @@ class TransformerBuilder(BaseBuilder):
         model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
 
         return {
-            "model": model,
-            "dataset": x_train
+            "model": model
         }

@@ -176,43 +176,12 @@ def main():
         print(f"[NeuroForge] Model saved to: {model_path}")
 
         # Save model in ONNX format using tf2onnx CLI (works better with TF 2.15+)
-        try:
-            print(f"[NeuroForge] Converting model to ONNX format...")
-            import subprocess
-            import shutil
+        print(f"[NeuroForge] Converting model to ONNX format...")
+        from onnx_export import export_to_onnx
 
-            onnx_model_path = os.path.join(output_path, 'model.onnx')
+        onnx_model_path = os.path.join(output_path, 'model.onnx')
 
-            # Create temporary directory for SavedModel format
-            saved_model_dir = os.path.join(output_path, "saved_model_temp")
-
-            # Export to SavedModel format (required for tf2onnx CLI)
-            print(f"[NeuroForge] Exporting to SavedModel format...")
-            model.export(saved_model_dir)
-
-            print(f"[NeuroForge] Running tf2onnx CLI conversion...")
-
-            # Use tf2onnx CLI for conversion (subprocess approach works with TF 2.15+)
-            result = subprocess.run([
-                sys.executable, "-m", "tf2onnx.convert",
-                "--saved-model", saved_model_dir,
-                "--output", onnx_model_path,
-                "--opset", "17"
-            ], check=True, capture_output=True, text=True)
-
-            # Print tf2onnx output for debugging
-            if result.stdout:
-                for line in result.stdout.split('\n'):
-                    if line.strip():
-                        print(f"[tf2onnx] {line}")
-
-            # Clean up temporary SavedModel directory
-            if os.path.exists(saved_model_dir):
-                shutil.rmtree(saved_model_dir)
-                print(f"[NeuroForge] Cleaned up temporary SavedModel directory")
-
-            print(f"[NeuroForge] ONNX model saved to: {onnx_model_path}")
-
+        if export_to_onnx(model, onnx_model_path, opset=17):
             # Save ONNX metadata
             input_shape = config.get('input_shape')
             onnx_metadata = {
@@ -226,31 +195,8 @@ def main():
             with open(onnx_meta_path, 'w') as f:
                 json.dump(onnx_metadata, f, indent=2)
             print(f"[NeuroForge] ONNX metadata saved to: {onnx_meta_path}")
-
-        except subprocess.CalledProcessError as e:
-            print(f"[WARNING] tf2onnx conversion failed with exit code {e.returncode}", file=sys.stderr)
-            if e.stdout:
-                print(f"[WARNING] stdout: {e.stdout}", file=sys.stderr)
-            if e.stderr:
-                print(f"[WARNING] stderr: {e.stderr}", file=sys.stderr)
+        else:
             print(f"[WARNING] Model is still available in H5 format", file=sys.stderr)
-
-            # Clean up on failure
-            saved_model_dir = os.path.join(output_path, "saved_model_temp")
-            if os.path.exists(saved_model_dir):
-                shutil.rmtree(saved_model_dir)
-
-        except Exception as e:
-            print(f"[WARNING] Failed to convert model to ONNX: {e}", file=sys.stderr)
-            print(f"[WARNING] Model is still available in H5 format", file=sys.stderr)
-
-            # Clean up on failure
-            saved_model_dir = os.path.join(output_path, "saved_model_temp")
-            if os.path.exists(saved_model_dir):
-                try:
-                    shutil.rmtree(saved_model_dir)
-                except:
-                    pass
 
 
         # Save configuration used
