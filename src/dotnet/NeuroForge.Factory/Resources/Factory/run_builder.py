@@ -34,6 +34,56 @@ import json
 import os
 from pathlib import Path
 
+
+def build_callbacks(training_config: dict, has_validation_data: bool):
+    """
+    Build a list of Keras callbacks (EarlyStopping, ReduceLROnPlateau) from the
+    'training' section of the config. Both callbacks default to monitoring
+    'val_loss'; if no validation data is available they fall back to 'loss'
+    so they still work on configs without a validation_split.
+    """
+    from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+
+    callbacks = []
+
+    def resolve_monitor(monitor: str) -> str:
+        if not has_validation_data and monitor.startswith("val_"):
+            fallback = monitor[len("val_"):]
+            print(f"[NeuroForge] No validation data available; monitoring '{fallback}' instead of '{monitor}'")
+            return fallback
+        return monitor
+
+    early_stopping_cfg = training_config.get("early_stopping")
+    if early_stopping_cfg and early_stopping_cfg.get("enabled", True):
+        monitor = resolve_monitor(early_stopping_cfg.get("monitor", "val_loss"))
+        patience = early_stopping_cfg.get("patience", 3)
+        min_delta = early_stopping_cfg.get("min_delta", 0.0)
+        restore_best_weights = early_stopping_cfg.get("restore_best_weights", True)
+        print(f"[NeuroForge] EarlyStopping enabled: monitor={monitor}, patience={patience}")
+        callbacks.append(EarlyStopping(
+            monitor=monitor,
+            patience=patience,
+            min_delta=min_delta,
+            restore_best_weights=restore_best_weights
+        ))
+
+    reduce_lr_cfg = training_config.get("reduce_lr_on_plateau")
+    if reduce_lr_cfg and reduce_lr_cfg.get("enabled", True):
+        monitor = resolve_monitor(reduce_lr_cfg.get("monitor", "val_loss"))
+        factor = reduce_lr_cfg.get("factor", 0.1)
+        patience = reduce_lr_cfg.get("patience", 10)
+        min_lr = reduce_lr_cfg.get("min_lr", 0.0)
+        print(f"[NeuroForge] ReduceLROnPlateau enabled: monitor={monitor}, factor={factor}, patience={patience}")
+        callbacks.append(ReduceLROnPlateau(
+            monitor=monitor,
+            factor=factor,
+            patience=patience,
+            min_lr=min_lr
+        ))
+
+    return callbacks
+
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: run_builder.py <config_path> <output_path>", file=sys.stderr)
@@ -153,11 +203,13 @@ def main():
                 # Train model
                 print(f"[NeuroForge] Starting training...")
                 val_data = (X_val, y_val) if X_val is not None else None
+                callbacks = build_callbacks(training_config, has_validation_data=val_data is not None)
                 history = model.fit(
                     X_train, y_train,
                     validation_data=val_data,
                     epochs=epochs,
                     batch_size=batch_size,
+                    callbacks=callbacks,
                     verbose=1
                 )
                 history_data = history.history

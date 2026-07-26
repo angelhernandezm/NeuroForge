@@ -3,6 +3,9 @@
   <Folder Name="/dotnet/Factory/">
     <Project Path="dotnet/NeuroForge.Factory/NeuroForge.Factory.csproj" Id="66b334bb-c892-4ff9-bf12-3b9a4061a785" />
   </Folder>
+  <Folder Name="/dotnet/Inference/">
+    <Project Path="dotnet/NeuroForge.Inference/InferenceRunner/InferenceRunner.csproj" Id="61958af3-d9d3-40a6-b309-75455a2d9590" />
+  </Folder>
   <Folder Name="/dotnet/Runner/">
     <Project Path="dotnet/NeuroForge.Runner/NeuroForge.Runner.csproj" Id="ef6534bb-09fe-4172-959b-c377fc86dc81" />
   </Folder>

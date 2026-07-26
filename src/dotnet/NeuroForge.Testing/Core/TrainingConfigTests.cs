@@ -129,7 +129,7 @@ public class TrainingConfigTests {
                 "epochs": 10,
                 "batch_size": 32,
                 "learning_rate": 0.001,
-                "early_stopping": true
+                "shuffle": true
             }
             """;
 

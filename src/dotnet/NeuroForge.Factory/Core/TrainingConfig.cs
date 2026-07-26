@@ -54,10 +54,109 @@ public class TrainingConfig {
     }
 
     /// <summary>
+    /// Gets or sets the EarlyStopping callback configuration. When set, training
+    /// stops once the monitored metric stops improving for <c>patience</c> epochs.
+    /// </summary>
+    [JsonPropertyName("early_stopping")]
+    public EarlyStoppingConfig? EarlyStopping {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the ReduceLROnPlateau callback configuration. When set, the
+    /// learning rate is reduced once the monitored metric stops improving.
+    /// </summary>
+    [JsonPropertyName("reduce_lr_on_plateau")]
+    public ReduceLROnPlateauConfig? ReduceLROnPlateau {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets additional properties as a dictionary
     /// </summary>
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData {
+        get; set;
+    }
+}
+
+/// <summary>
+/// Configuration for Keras' <c>EarlyStopping</c> callback
+/// (https://keras.io/api/callbacks/early_stopping/)
+/// </summary>
+public class EarlyStoppingConfig {
+    /// <summary>
+    /// Gets or sets whether this callback is enabled
+    /// </summary>
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the metric to monitor (e.g., "val_loss", "loss")
+    /// </summary>
+    [JsonPropertyName("monitor")]
+    public string Monitor { get; set; } = "val_loss";
+
+    /// <summary>
+    /// Gets or sets the number of epochs with no improvement after which
+    /// training will be stopped. Recommended range: 3-5.
+    /// </summary>
+    [JsonPropertyName("patience")]
+    public int Patience { get; set; } = 3;
+
+    /// <summary>
+    /// Gets or sets the minimum change in the monitored metric to qualify as
+    /// an improvement
+    /// </summary>
+    [JsonPropertyName("min_delta")]
+    public double MinDelta {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets whether to restore model weights from the epoch with the
+    /// best value of the monitored metric
+    /// </summary>
+    [JsonPropertyName("restore_best_weights")]
+    public bool RestoreBestWeights { get; set; } = true;
+}
+
+/// <summary>
+/// Configuration for Keras' <c>ReduceLROnPlateau</c> callback
+/// (https://keras.io/api/callbacks/reduce_lr_on_plateau/)
+/// </summary>
+public class ReduceLROnPlateauConfig {
+    /// <summary>
+    /// Gets or sets whether this callback is enabled
+    /// </summary>
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the metric to monitor (e.g., "val_loss", "loss")
+    /// </summary>
+    [JsonPropertyName("monitor")]
+    public string Monitor { get; set; } = "val_loss";
+
+    /// <summary>
+    /// Gets or sets the factor by which the learning rate will be reduced
+    /// (new_lr = lr * factor)
+    /// </summary>
+    [JsonPropertyName("factor")]
+    public double Factor { get; set; } = 0.1;
+
+    /// <summary>
+    /// Gets or sets the number of epochs with no improvement after which the
+    /// learning rate will be reduced
+    /// </summary>
+    [JsonPropertyName("patience")]
+    public int Patience { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the lower bound on the learning rate
+    /// </summary>
+    [JsonPropertyName("min_lr")]
+    public double MinLr {
         get; set;
     }
 }

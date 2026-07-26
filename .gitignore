@@ -18,3 +18,7 @@
 # Python bytecode cache
 __pycache__/
 *.pyc
+/src/.vs/NeuroForge/CopilotIndices/18.9.1264.972
+/src/dotnet/NeuroForge.Inference/InferenceRunner/bin/Debug/net10.0-windows
+/src/dotnet/NeuroForge.Inference/InferenceRunner/obj
+*.user

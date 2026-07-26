@@ -81,8 +81,21 @@ try {
             ""loss"": ""sparse_categorical_crossentropy""
         },
         ""training"": {
-            ""epochs"": 5,
-            ""batch_size"": 64
+            ""epochs"": 15,
+            ""batch_size"": 64,
+            ""early_stopping"": {
+                ""enabled"": true,
+                ""monitor"": ""val_loss"",
+                ""patience"": 4,
+                ""restore_best_weights"": true
+            },
+            ""reduce_lr_on_plateau"": {
+                ""enabled"": true,
+                ""monitor"": ""val_loss"",
+                ""factor"": 0.5,
+                ""patience"": 2,
+                ""min_lr"": 1e-6
+            }
         }
     }";
 
@@ -121,7 +134,7 @@ try {
     Console.WriteLine("\n✓ What just happened:");
     Console.WriteLine("   1. Python + TensorFlow environment initialized");
     Console.WriteLine("   2. CIFAR-10 dataset loaded (50,000 images)");
-    Console.WriteLine("   3. CNN model trained for 5 epochs");
+    Console.WriteLine("   3. CNN model trained for 15 epochs (if there isn't early stopping)");
     Console.WriteLine("   4. Model exported to ONNX format");
     Console.WriteLine("\n✓ Next steps:");
     Console.WriteLine("   - Deploy the .onnx model with ML.NET");
