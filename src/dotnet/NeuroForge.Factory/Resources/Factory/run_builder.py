@@ -35,6 +35,25 @@ import os
 from pathlib import Path
 
 
+def to_json_serializable(obj):
+    """
+    Recursively convert numpy scalars/arrays (e.g. float32 values produced by
+    Keras training history) into native Python types so the result can be
+    passed to json.dump() without raising TypeError.
+    """
+    import numpy as np
+
+    if isinstance(obj, dict):
+        return {k: to_json_serializable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [to_json_serializable(v) for v in obj]
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, np.generic):
+        return obj.item()
+    return obj
+
+
 def build_callbacks(training_config: dict, has_validation_data: bool):
     """
     Build a list of Keras callbacks (EarlyStopping, ReduceLROnPlateau) from the
@@ -219,7 +238,7 @@ def main():
             # Save training history
             history_path = os.path.join(output_path, 'training_history.json')
             with open(history_path, 'w') as f:
-                json.dump(history_data, f, indent=2)
+                json.dump(to_json_serializable(history_data), f, indent=2)
             print(f"[NeuroForge] Training history saved to: {history_path}")
 
         # Save model in H5 format
