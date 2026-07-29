@@ -54,6 +54,49 @@ def to_json_serializable(obj):
     return obj
 
 
+def set_global_seed(seed: int, deterministic_ops: bool = True):
+    """
+    Seed every RNG involved in model building/training (Python's `random`,
+    NumPy, and TensorFlow) so that running the same configuration on
+    different machines/processes produces the same weights, shuffling, and
+    results.
+
+    When `deterministic_ops` is True (default), TensorFlow's deterministic
+    op kernels are also enabled, since some GPU ops are non-deterministic by
+    default even with a fixed seed. This guarantees bit-for-bit reproducible
+    results but can slow down training; set it to False to keep the faster
+    kernels while still seeding the RNGs.
+    """
+    import os
+    import random
+
+    import numpy as np
+
+    # Must be set before any hashing occurs; has no effect on the current
+    # process for dict/set ordering, but keeps subprocesses consistent.
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
+    random.seed(seed)
+    np.random.seed(seed)
+
+    import tensorflow as tf
+
+    tf.random.set_seed(seed)
+
+    if deterministic_ops:
+        os.environ["TF_DETERMINISTIC_OPS"] = "1"
+        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
+        try:
+            tf.config.experimental.enable_op_determinism()
+        except AttributeError:
+            # Older TensorFlow versions don't expose this API; the seeds
+            # above still make results reproducible for most ops.
+            pass
+        print(f"[NeuroForge] Random seed set to {seed} (deterministic ops enabled) for reproducible results")
+    else:
+        print(f"[NeuroForge] Random seed set to {seed} (deterministic ops disabled; GPU results may vary slightly)")
+
+
 def build_callbacks(training_config: dict, has_validation_data: bool):
     """
     Build a list of Keras callbacks (EarlyStopping, ReduceLROnPlateau) from the
@@ -120,6 +163,15 @@ def main():
     except Exception as e:
         print(f"[ERROR] Failed to load configuration: {e}", file=sys.stderr)
         sys.exit(1)
+
+    # Seed all RNGs before the model is built so weight initialization,
+    # dropout, data shuffling, and training are reproducible across runs
+    # and machines. Accepts either a top-level "seed" or "training.seed".
+    training_cfg_for_seed = config.get('training', {})
+    seed = config.get('seed', training_cfg_for_seed.get('seed'))
+    if seed is not None:
+        deterministic_ops = training_cfg_for_seed.get('deterministic_ops', True)
+        set_global_seed(int(seed), deterministic_ops=deterministic_ops)
 
     model_type = config.get('type')
     if not model_type:

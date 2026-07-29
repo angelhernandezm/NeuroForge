@@ -25,7 +25,9 @@
 
       "training": {
         "epochs": 10,
-        "batch_size": 64
+        "batch_size": 64,
+        "seed": 42,
+        "deterministic_ops": true
       }
     },
 

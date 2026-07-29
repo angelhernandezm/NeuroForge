@@ -83,6 +83,8 @@ try {
         ""training"": {
             ""epochs"": 15,
             ""batch_size"": 64,
+            ""seed"": 42,
+            ""deterministic_ops"": true,
             ""early_stopping"": {
                 ""enabled"": true,
                 ""monitor"": ""val_loss"",
@@ -136,6 +138,7 @@ try {
     Console.WriteLine("   2. CIFAR-10 dataset loaded (50,000 images)");
     Console.WriteLine("   3. CNN model trained for 15 epochs (if there isn't early stopping)");
     Console.WriteLine("   4. Model exported to ONNX format");
+    Console.WriteLine("   (seed=42 set → training is reproducible across machines)");
     Console.WriteLine("\n✓ Next steps:");
     Console.WriteLine("   - Deploy the .onnx model with ML.NET");
     Console.WriteLine("   - Try other datasets (see DATASETS.md)");

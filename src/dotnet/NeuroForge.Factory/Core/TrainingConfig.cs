@@ -54,6 +54,30 @@ public class TrainingConfig {
     }
 
     /// <summary>
+    /// Gets or sets the random seed used to make training reproducible.
+    /// When set, Python's <c>random</c>, NumPy, and TensorFlow global RNGs
+    /// are seeded before the model is built and trained, so running the
+    /// same configuration on different machines produces the same result.
+    /// Leave unset (<c>null</c>) to keep non-deterministic behavior.
+    /// </summary>
+    [JsonPropertyName("seed")]
+    public int? Seed {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets whether TensorFlow's deterministic op kernels should be
+    /// enabled (<c>tf.config.experimental.enable_op_determinism()</c>) when a
+    /// <see cref="Seed"/> is set. Deterministic ops guarantee bit-for-bit
+    /// reproducible results, including on GPU, at the cost of some training
+    /// speed. Defaults to <c>true</c>; set to <c>false</c> to seed the RNGs
+    /// for reproducibility while keeping the faster, non-deterministic
+    /// kernels (results may still vary slightly, especially on GPU).
+    /// </summary>
+    [JsonPropertyName("deterministic_ops")]
+    public bool DeterministicOps { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the EarlyStopping callback configuration. When set, training
     /// stops once the monitored metric stops improving for <c>patience</c> epochs.
     /// </summary>
