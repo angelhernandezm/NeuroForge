@@ -15,6 +15,8 @@
 [Quick Start](#-quick-start) • [Architectures](#-six-ann-architectures) • [How It Works](#-how-it-works) • [Docs](#-documentation) • [Project Status](#-project-status)
 
 ---
+> [!NOTE]
+> Independent open-source project; not affiliated with or endorsed by Microsoft.
 
 ## 🎯 What is NeuroForge?
 
