@@ -26,6 +26,8 @@ You write C#. NeuroForge handles the rest.
 
 > **A quick note on "battle-tested":** the six architectures below (CNN, RNN/LSTM, GAN, etc.) are decades of proven, peer-reviewed ML research — that part is genuinely battle-tested. NeuroForge itself, the C#-to-Python engine wrapping them, is a young, actively-developed project. See [Project Status](#-project-status) for where things honestly stand.
 
+More details here - [NeuroForge: Compiling Neural Networks Inside .NET](https://www.angelhernandezm.com/neuroforge-compiling-neural-networks-inside-net)
+
 ### Why "NeuroForge"?
 
 In metallurgy, a forge transforms raw material into a finished tool. NeuroForge transforms your data into a trained, deployable neural network — all from the comfort of .NET.
