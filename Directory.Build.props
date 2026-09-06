@@ -1,17 +1,13 @@
 <Project>
 
-  <!-- Shared metadata for every project in the repository. -->
+  <!-- Shared metadata for every project in the repository.
+       Package-specific metadata (PackageId, Version, Authors, Description) lives in
+       src/dotnet/NeuroForge.Factory/NeuroForge.Factory.csproj. -->
   <PropertyGroup>
-    <Authors>Angel Hernandez</Authors>
     <Company>Angel Hernandez</Company>
     <Copyright>Copyright (c) Angel Hernandez</Copyright>
     <Product>NeuroForge</Product>
     <NeutralLanguage>en-US</NeutralLanguage>
-  </PropertyGroup>
-
-  <!-- Version. Bump VersionPrefix for a release; CI may override Version for pre-releases. -->
-  <PropertyGroup>
-    <VersionPrefix>1.0.0</VersionPrefix>
   </PropertyGroup>
 
   <!-- Repository / license information used by generated packages. -->

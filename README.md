@@ -230,7 +230,7 @@ The NuGet package (`NeuroForge`, produced from `src/dotnet/NeuroForge.Factory`) 
 [`publish-nuget.yml`](.github/workflows/publish-nuget.yml) workflow.
 
 1. Add a `NUGET_API_KEY` repository secret containing an nuget.org API key scoped to the `NeuroForge` package ID.
-2. Bump `<VersionPrefix>` in [`Directory.Build.props`](Directory.Build.props) and commit.
+2. Bump `<Version>` in [`NeuroForge.Factory.csproj`](src/dotnet/NeuroForge.Factory/NeuroForge.Factory.csproj) and commit.
 3. Tag and push: `git tag v1.0.0 && git push origin v1.0.0`.
 
 The workflow builds, packs (including a `.snupkg` symbol package with Source Link) and pushes to nuget.org.

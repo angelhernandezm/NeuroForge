@@ -13,8 +13,10 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>NeuroForge</PackageId>
-    <Title>NeuroForge — Neural Network Engine for .NET</Title>
+    <Version>1.0.0</Version>
+    <Authors>Angel Hernandez</Authors>
     <Description>Build, train and export neural networks (MLP, CNN, RNN/LSTM, Autoencoder, GAN, Transformer) from strongly-typed C# configuration — no Python code required. NeuroForge bootstraps and manages a Python/TensorFlow runtime for you, trains on image folders, CSV/Excel, NumPy arrays or built-in datasets (CIFAR-10, MNIST, IMDB), and automatically exports every model to ONNX so it runs anywhere: ML.NET, ONNX Runtime, Azure ML, edge or mobile — with no TensorFlow dependency at inference time. Windows only for now.</Description>
+    <Title>NeuroForge — Neural Network Engine for .NET</Title>
     <PackageTags>neural-network;machine-learning;deep-learning;ai;ann;cnn;rnn;lstm;gan;transformer;autoencoder;tensorflow;keras;onnx;ml;dotnet</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>See https://github.com/angelhernandezm/NeuroForge/releases</PackageReleaseNotes>
