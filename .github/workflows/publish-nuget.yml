@@ -1,0 +1,85 @@
+name: Publish NuGet package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version to build and publish (e.g. 1.0.0 or 1.1.0-preview.1)'
+        required: true
+        type: string
+      publish:
+        description: 'Push the package to nuget.org'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  PROJECT: src/dotnet/NeuroForge.Factory/NeuroForge.Factory.csproj
+  ARTIFACTS: ${{ github.workspace }}/artifacts
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'push') {
+            $version = '${{ github.ref_name }}' -replace '^v', ''
+          } else {
+            $version = '${{ inputs.version }}'
+          }
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw 'Unable to resolve a package version.'
+          }
+          Write-Host "Package version: $version"
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore ${{ env.PROJECT }}
+
+      - name: Build
+        run: dotnet build ${{ env.PROJECT }} -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack
+        run: dotnet pack ${{ env.PROJECT }} -c Release --no-build -o ${{ env.ARTIFACTS }} -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            ${{ env.ARTIFACTS }}/*.nupkg
+            ${{ env.ARTIFACTS }}/*.snupkg
+
+      - name: Push to nuget.org
+        if: github.event_name == 'push' || inputs.publish
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) {
+            throw 'The NUGET_API_KEY repository secret is not configured.'
+          }
+          dotnet nuget push "${{ env.ARTIFACTS }}/*.nupkg" `
+            --source https://api.nuget.org/v3/index.json `
+            --api-key $env:NUGET_API_KEY `
+            --skip-duplicate

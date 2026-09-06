@@ -4,7 +4,27 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>NeuroForge.Factory</RootNamespace>
+    <AssemblyName>NeuroForge.Factory</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <!-- NuGet package metadata. This is the only packable project in the repository. -->
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>NeuroForge</PackageId>
+    <Title>NeuroForge — Neural Network Engine for .NET</Title>
+    <Description>Build, train and export neural networks (MLP, CNN, RNN/LSTM, Autoencoder, GAN, Transformer) from strongly-typed C# configuration. NeuroForge bootstraps and manages a Python/TensorFlow runtime for you and hands back an ONNX model you can run anywhere — ML.NET, ONNX Runtime, Azure ML, edge or mobile. Windows only for now.</Description>
+    <PackageTags>neural-network;machine-learning;deep-learning;ai;ann;cnn;rnn;lstm;gan;transformer;autoencoder;tensorflow;keras;onnx;ml;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>See https://github.com/angelhernandezm/NeuroForge/releases</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="PACKAGE.md" Pack="true" PackagePath="README.md" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\Factory\autoencoder_builder.py" />

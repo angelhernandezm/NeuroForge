@@ -10,6 +10,7 @@
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-FF6F00?style=flat&logo=tensorflow)](https://www.tensorflow.org/)
 [![ONNX](https://img.shields.io/badge/ONNX-Export-5C3EE8?style=flat)](https://onnx.ai/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
+[![NuGet](https://img.shields.io/nuget/v/NeuroForge?style=flat&logo=nuget)](https://www.nuget.org/packages/NeuroForge)
 [![Tests](https://img.shields.io/badge/tests-3%2C100%2B%20lines-brightgreen?style=flat)](src/dotnet/NeuroForge.Testing)
 
 [Quick Start](#-quick-start) • [Architectures](#-six-ann-architectures) • [How It Works](#-how-it-works) • [Docs](#-documentation) • [Project Status](#-project-status)
@@ -123,6 +124,12 @@ Full parameter reference for every architecture: [ANN_BUILDER_MANAGER_README.md]
 
 ## 🚀 Quick Start
 
+### Install
+
+```bash
+dotnet add package NeuroForge
+```
+
 ```csharp
 using NeuroForge.Factory;
 using NeuroForge.Factory.Core;
@@ -203,7 +210,6 @@ NeuroForge is an early-stage, actively-developed, single-maintainer project — 
 - **Windows only** for now; Linux/macOS support is planned, not yet built.
 - The Python installer download has no checksum verification yet.
 - `InstallAllUsers=1` requires an elevated shell — there's no automatic elevation prompt yet.
-- No published release/NuGet package yet — clone and build from source.
 
 If any of that matters for your use case, please open an issue — it helps prioritize what gets fixed next.
 
@@ -215,6 +221,21 @@ If any of that matters for your use case, please open an issue — it helps prio
 - Windows 10/11 (Linux/macOS support planned)
 - Administrator shell for first-time Python runtime setup
 - ~500MB disk space for the Python environment
+
+---
+
+## 📦 Releasing
+
+The NuGet package (`NeuroForge`, produced from `src/dotnet/NeuroForge.Factory`) is published by the
+[`publish-nuget.yml`](.github/workflows/publish-nuget.yml) workflow.
+
+1. Add a `NUGET_API_KEY` repository secret containing an nuget.org API key scoped to the `NeuroForge` package ID.
+2. Bump `<VersionPrefix>` in [`Directory.Build.props`](Directory.Build.props) and commit.
+3. Tag and push: `git tag v1.0.0 && git push origin v1.0.0`.
+
+The workflow builds, packs (including a `.snupkg` symbol package with Source Link) and pushes to nuget.org.
+You can also run it manually via **Run workflow**, supplying a version and choosing whether to publish —
+useful for producing a package without pushing it.
 
 ---
 

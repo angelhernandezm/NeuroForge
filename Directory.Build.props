@@ -1,0 +1,42 @@
+<Project>
+
+  <!-- Shared metadata for every project in the repository. -->
+  <PropertyGroup>
+    <Authors>Angel Hernandez</Authors>
+    <Company>Angel Hernandez</Company>
+    <Copyright>Copyright (c) Angel Hernandez</Copyright>
+    <Product>NeuroForge</Product>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <!-- Version. Bump VersionPrefix for a release; CI may override Version for pre-releases. -->
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+  </PropertyGroup>
+
+  <!-- Repository / license information used by generated packages. -->
+  <PropertyGroup>
+    <PackageProjectUrl>https://github.com/angelhernandezm/NeuroForge</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/angelhernandezm/NeuroForge</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <!-- Nothing is packable unless a project opts in explicitly. -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Deterministic, source-linked builds (SourceLink ships with the .NET SDK). -->
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+</Project>

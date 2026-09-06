@@ -22,3 +22,12 @@ __pycache__/
 /src/dotnet/NeuroForge.Inference/InferenceRunner/bin/Debug/net10.0-windows
 /src/dotnet/NeuroForge.Inference/InferenceRunner/obj
 *.user
+
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# NuGet packaging output
+artifacts/
+*.nupkg
+*.snupkg
