@@ -20,6 +20,7 @@ dotnet add package NeuroForge
 ```csharp
 using NeuroForge.Factory;
 using NeuroForge.Factory.Core;
+using NeuroForge.Factory.Support;
 
 // 1. Set up the Python/TensorFlow runtime (one-time, downloads Python 3.11 + TF 2.15)
 var factory = new NeuroForgeFactory();
@@ -36,7 +37,7 @@ var config = new AnnBuilderConfig {
 
 // 3. Build, train, and export
 var manager = factory.CreateAnnBuilderManager();
-await manager.BuildModelAsync("my_cnn", config);
+await manager.BuildModelAsync("my_cnn", config, PythonRuntimeHelper.CreateConsoleProgress());
 
 // Done — model.h5 and model.onnx are ready in your output directory.
 ```

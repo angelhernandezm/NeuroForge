@@ -240,7 +240,9 @@ def main():
             X_train, y_train = DatasetLoader.load(dataset_config)
 
             # Apply validation split if specified
-            validation_split = dataset_config.get('validation_split', 0.0)
+            validation_split = dataset_config.get('validation_split')
+            if validation_split is None:
+                validation_split = 0.0          
             if validation_split > 0 and X_train is not None:
                 split_idx = int(len(X_train) * (1 - validation_split))
                 X_val = X_train[split_idx:]

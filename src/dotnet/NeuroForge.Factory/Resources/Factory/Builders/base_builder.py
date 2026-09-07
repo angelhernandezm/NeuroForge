@@ -32,12 +32,14 @@
 class BaseBuilder:
     def __init__(self, config):
         self.config = config
-        self.params = config.get("params", {})
-        self.training = config.get("training", {})
-        self.dataset = config.get("dataset", {})
+        self.params = config.get("params") or {}
+        self.training = config.get("training") or {}
+        self.dataset = config.get("dataset") or {}
 
     def get(self, key, default=None):
-        return self.params.get(key, default)
+        value = self.params.get(key)
+        return default if value is None else value
 
     def get_dataset(self, key, default=None):
-        return self.dataset.get(key, default)
+        value = self.dataset.get(key)
+        return default if value is None else value
