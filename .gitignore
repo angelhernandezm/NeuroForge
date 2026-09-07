@@ -31,3 +31,4 @@ __pycache__/
 artifacts/
 *.nupkg
 *.snupkg
+/src/.vs/NeuroForge/CopilotIndices/18.10.1150.1527
